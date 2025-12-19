@@ -1,0 +1,77 @@
+Name     AddressDecoder ;
+PartNo   00 ;
+Date     11/11/2025 ;
+Revision 08 ;
+Designer Matthew Reeves-Hairs ;
+Company  NA ;
+Assembly None ;
+Location  ;
+Device   g22v10 ;
+
+/* 
+v7 added ROM size selection
+v8 removed ROM size selection, default to 4K ROM
+
+Pin Map 
+         --------
+PHI2 IN |1     24| Vcc
+A15  IN |2     23| OUT /WR
+A14  IN |3     22| OUT /RD
+A13  IN |4     21| OUT /MEMREQ (Memory Request)
+A12  IN |5     20| OUT /IOREQ  (IO Request)
+A11  IN |6     19| OUT /RAMCS1 (Upper memory)
+A10  IN |7     18| OUT /RAMCS0 (Lower memory)
+A9   IN |8     17| OUT /ROMCS  (ROM)
+A8   IN |9     16| NC
+NC   IN |10    15| NC
+NC   IN |11    14| NC
+Gnd     |12    13| IN RWB 
+         --------
+
+*/
+
+/* *************** INPUT PINS *********************/
+PIN   1  = phi2                        	; /*   Clock from CPU                */ 
+PIN   [2..9] = [a15..8]                        	; /*   Address Bus                   */ 
+PIN   13  = rwb                        		; /*   RWB from CPU (1 = read, 0 = write) */ 
+
+/* *************** OUTPUT PINS *********************/
+PIN  23   = !wr					; /*	write enable, active low  */
+PIN  22   = !rd                        		; /*   read enable, active low       */ 
+PIN  21   = !memreq                      		; /*   Memory Request, active low                */ 
+PIN  20   = !ioreq                     		; /*   IO Request Address 0x03xx, active low     */ 
+PIN  19   = !ram_cs1 				; /*   Upper memory chip select, active low */
+PIN  18   = !ram_cs0                   		; /*   Lower Memory chip select, active low               */ 
+PIN  17   = !rom_cs                     		; /*   ROM chip select, active low  */      
+
+
+
+/* *************** Declarations and Intermediate Variable Definitions ****************** */
+
+field address = [a15..8] ;
+
+/* ********** Low memory between 0000-7FFF excluding IO Block 0300-03FF ********** */
+ramlow_eqn0 = address:['h'0000..02FF] 		; /* Low memory before IO Block */
+ramlow_eqn1 = address:['h'0400..7FFF] 		; /* Low memory after IO Block */
+ramlow_eqn = ramlow_eqn0 # ramlow_eqn1 ;
+
+ioport_eqn = address:['h'0300..03FF] 	 		; /* IO Block */
+
+/* ********** ROM between F000-FFFF 4K ********** */
+rom_eqn = address:['h'C000..FFFF] 			; /* 16K */
+
+/* *********** Upper RAM size is 28K - Rom Size ********** */
+ramhigh_eqn = address:['h'8000..BFFF] 		; /* 16K */
+
+
+/* ********************* Logic Equations *************************** */
+
+rd =  rwb  & phi2 ;  /* READ strobe: high when RWB=1 and PHI2=1 (externally /RD is active low) */
+wr = !rwb  & phi2 ;  /* WRITE strobe: high when RWB=0 and PHI2=1 (externally /WR is active low) */
+
+ioreq = ioport_eqn 					; /* Address in range of IO address block */
+memreq = !ioport_eqn 				; /* Address in range of Memory addresses */
+
+rom_cs = !ioport_eqn & rom_eqn 					; /* ROM Chip Select */
+ram_cs0 = !ioport_eqn & ramlow_eqn 	; /* Lower RAM Chip Select */
+ram_cs1 = !ioport_eqn & ramhigh_eqn  ; /* Upper RAM Chip Select */

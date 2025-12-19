@@ -1,0 +1,88 @@
+%SIGNAL
+PIN   8 =  a0 
+PIN   7 =  a1 
+PIN   6 =  a2 
+PIN   5 =  a3 
+PIN   4 =  a4 
+PIN   3 =  a5 
+PIN   2 =  a6 
+PIN   1 =  a7 
+PIN  14 = !acia0 
+PIN  15 = !acia1 
+PIN  19 = !iop0 
+PIN  20 = !iop1 
+PIN   9 = !ioreq 
+PIN  16 = !pia0 
+PIN  17 = !pia1 
+PIN  18 = !via 
+%END
+
+%FIELD
+FIELD address = a7,a6,a5,a4,a3,a2,a1,a0
+%END
+
+%EQUATION
+acia0 =>
+    !a1 & !a2 & !a3 & !a4 & !a5 & !a6 & !a7 & !ioreq
+
+acia0_eqn =>
+    !a1 & !a2 & !a3 & !a4 & !a5 & !a6 & !a7
+
+acia1 =>
+    a1 & !a2 & !a3 & !a4 & !a5 & !a6 & !a7 & !ioreq
+
+acia1_eqn =>
+    a1 & !a2 & !a3 & !a4 & !a5 & !a6 & !a7
+
+iop0 =>
+    !a1 & a2 & a3 & !a4 & !a5 & !a6 & !a7 & !ioreq
+
+iop0_eqn =>
+    !a1 & a2 & a3 & !a4 & !a5 & !a6 & !a7
+
+iop1 =>
+    a1 & a2 & a3 & !a4 & !a5 & !a6 & !a7 & !ioreq
+
+iop1_eqn =>
+    a1 & a2 & a3 & !a4 & !a5 & !a6 & !a7
+
+pia0 =>
+    a2 & !a3 & !a4 & !a5 & !a6 & !a7 & !ioreq
+
+pia0_eqn =>
+    a2 & !a3 & !a4 & !a5 & !a6 & !a7
+
+pia1 =>
+    !a2 & a3 & !a4 & !a5 & !a6 & !a7 & !ioreq
+
+pia1_eqn =>
+    !a2 & a3 & !a4 & !a5 & !a6 & !a7
+
+via =>
+    a4 & !a5 & !a6 & !a7 & !ioreq
+
+via_eqn =>
+    a4 & !a5 & !a6 & !a7
+
+acia0.oe  =>
+    1 
+
+acia1.oe  =>
+    1 
+
+iop0.oe  =>
+    1 
+
+iop1.oe  =>
+    1 
+
+pia0.oe  =>
+    1 
+
+pia1.oe  =>
+    1 
+
+via.oe  =>
+    1 
+
+%END
